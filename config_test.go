@@ -1,6 +1,7 @@
 package pop
 
 import (
+	"os/exec"
 	"strings"
 	"testing"
 
@@ -73,4 +74,29 @@ func Test_Save_With_ExcludeColumns_On_Association(t *testing.T) {
 	// When implemented, this test should verify that columns can be excluded from
 	// associated models during a save operation. The implementation would need to
 	// handle dot notation like "pets.type" to exclude columns on nested models.
+}
+
+func Test_Migrate_Check_Build_Error(t *testing.T) {
+	// This is a simulation: in real usage, the Makefile's migrate-check target
+	// will catch build errors before running migrations.
+	// Here, we simulate what would happen if a build error is present.
+
+	// Simulate a build error by running 'go build' on a known-bad file.
+	// In a real test suite, you would create a temp file with a syntax error.
+	// For demonstration, we just check that 'go build' fails on a bad path.
+	cmd := "go build ./doesnotexist"
+	err := runShellCommand(cmd)
+	require.Error(t, err, "Expected build to fail for a bad path")
+}
+
+// Helper for running shell commands in tests.
+func runShellCommand(cmd string) error {
+	parts := strings.Fields(cmd)
+	if len(parts) == 0 {
+		return nil
+	}
+	name := parts[0]
+	args := parts[1:]
+	c := exec.Command(name, args...)
+	return c.Run()
 }

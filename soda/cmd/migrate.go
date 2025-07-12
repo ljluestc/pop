@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	"errors"
+	stderrors "errors"
 	"os"
 
 	"github.com/gobuffalo/pop/v6"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -20,8 +21,14 @@ var migrateCmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
-			return errors.New("migrate command does not accept any argument")
+			return stderrors.New("migrate command does not accept any argument")
 		}
+
+		// Check for build errors before attempting migration
+		if err := checkBuildErrors(); err != nil {
+			return errors.WithStack(err)
+		}
+
 		mig, err := pop.NewFileMigrator(migrationPath, getConn())
 		if err != nil {
 			return err
